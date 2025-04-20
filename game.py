@@ -289,10 +289,10 @@ def run_game(pvp=True):
     turn = random.randint(PLAYER, AI)
     piece_map = {turn: 1, (turn + 1) % 2: 2}
 
-    # Create a mapping for piece ownership (Player vs Bot)
+    # Create a mapping for piece ownership (Player vs Bot or PvP)
     piece_to_player = {
-        piece_map[PLAYER]: "Player",
-        piece_map[AI]: "Bot"
+        piece_map[PLAYER]: "Player 1" if pvp else "Player",
+        piece_map[AI]: "Player 2" if pvp else "Bot"
     }
 
     while not game_over:
@@ -372,7 +372,14 @@ def run_game(pvp=True):
     from winner_popup import show_winner_popup
     from menu import main_menu
 
+    # Display win message based on PvP or PvE mode
     if winner_piece is not None:
-        result = show_winner_popup(screen, winner=piece_to_player[winner_piece])
-        if result:
+        if pvp:
+            result = show_winner_popup(screen, winner=f"Player {1 if winner_piece == 1 else 2} wins", on_restart=lambda: run_game(pvp))
+        else:
+            result = show_winner_popup(screen, winner=f"{piece_to_player[winner_piece]} wins", on_restart=lambda: run_game(pvp))
+
+        if result == "home":
             main_menu()
+        elif result == "restart":
+            run_game(pvp)  # Restart game
